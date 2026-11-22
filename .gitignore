@@ -1,0 +1,44 @@
+logs/
+
+/backups/
+/.env
+/.env.*
+!/.env.example
+/logs/
+*.pgdump
+*.dump
+
+# Python environment
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+
+# React build and dependencies
+node_modules/
+dist/
+dashboard/node_modules/
+dashboard/dist/
+
+# Local credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Runtime data and backups
+logs/
+backups/
+data/
+*.pgdump
+*.sqlite
+*.sqlite3
+*.db
+*.log
+*.backup
+*.before-*
+
+# OS/editor
+.DS_Store
+.vscode/

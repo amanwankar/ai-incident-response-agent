@@ -1,0 +1,111 @@
+
+.monitor-panel {
+  background: #131d32;
+  border: 1px solid #2a3651;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.monitor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.monitor-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.monitor-header p,
+.monitor-muted,
+.monitor-footnote {
+  color: #8fa1bf;
+  font-size: 12px;
+}
+
+.monitor-live {
+  color: #64deb0;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.monitor-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.monitor-stat {
+  background: #19263e;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.monitor-stat span {
+  color: #9aabc5;
+  display: block;
+  font-size: 12px;
+}
+
+.monitor-stat strong {
+  font-size: 24px;
+  display: block;
+  margin-top: 12px;
+}
+
+.monitor-good {
+  color: #64deb0;
+}
+
+.monitor-warning {
+  color: #ffb86c;
+}
+
+.monitor-graph {
+  background: #10192d;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.monitor-graph h3 {
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+.traffic-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #91a3bf;
+  font-size: 11px;
+}
+
+.monitor-footnote {
+  margin-bottom: 0;
+}
+
+.monitor-error {
+  color: #ffb4bb;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .monitor-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .monitor-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

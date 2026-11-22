@@ -1,0 +1,19 @@
+groups:
+  - name: aiops-local
+    rules:
+      - alert: FastAPIDown
+        expr: up{job="fastapi"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: FastAPI application is down
+          description: Prometheus cannot scrape containerized FastAPI for 30 seconds.
+      - alert: FastAPIHighErrorRate
+        expr: sum(rate(http_server_errors_total{job="fastapi"}[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: FastAPI has sustained HTTP 5xx responses
+          description: HTTP server error rate exceeded 0.05 errors/sec for 2m.

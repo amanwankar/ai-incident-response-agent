@@ -1,0 +1,16 @@
+services:
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+
+    ports:
+      - "127.0.0.1:5174:80"
+
+    depends_on:
+      - backend
+
+    networks:
+      - aiops-network
+
+    restart: unless-stopped

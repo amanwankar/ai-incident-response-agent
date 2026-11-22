@@ -1,0 +1,108 @@
+name: aiops-final
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: aiops
+      POSTGRES_DB: incident_db
+      POSTGRES_PASSWORD: ${AIOPS_DB_PASSWORD:?Export AIOPS_DB_PASSWORD before starting Compose}
+    ports:
+      - '127.0.0.1:15432:5432'
+    volumes:
+      - aiops-final-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U aiops -d incident_db']
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+    networks: [internal]
+
+  backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_NAME: incident_db
+      DB_USER: aiops
+      AIOPS_DB_PASSWORD: ${AIOPS_DB_PASSWORD:?Export AIOPS_DB_PASSWORD before starting Compose}
+      PROMETHEUS_URL: http://prometheus:9090
+      OLLAMA_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: qwen2.5:1.5b
+    ports:
+      - '127.0.0.1:8001:8000'
+    volumes:
+      - ../logs:/app/logs:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    networks: [internal]
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+      - aiops-final-prometheus-data:/prometheus
+    ports:
+      - '127.0.0.1:9090:9090'
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [internal]
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - aiops-final-alertmanager-data:/alertmanager
+    ports:
+      - '127.0.0.1:9093:9093'
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [internal]
+
+  dashboard:
+    build:
+      context: ../dashboard
+      dockerfile: Dockerfile
+    ports:
+      - '127.0.0.1:5174:80'
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [internal]
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  aiops-final-postgres-data:
+    external: true
+  aiops-final-prometheus-data:
+    external: true
+  aiops-final-alertmanager-data:
+    external: true
